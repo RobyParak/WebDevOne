@@ -1,4 +1,25 @@
-<!DOCTYPE HTML>
+<?php
+require_once '../model/user.php'; // Include the user class definition
+session_start();
+
+// Check if the 'user' key is set in the session
+if (isset($_SESSION['user'])) {
+    // Retrieve the serialized object from the session variable
+    $userSerialized = $_SESSION['user'];
+    // Deserialize the object
+    $user = unserialize($userSerialized);
+    // Set the flag to true to enable the reserve button
+    $isUserLoggedIn = true;
+} else {
+    // Set the flag = false to disable the reserve button
+    $isUserLoggedIn = false;
+    echo '<script>alert("You are currently not logged in. Please log in to reserve a book. \nThe reserve button will be disabled unless logged in.");</script>';
+}
+?>
+
+
+
+    <!DOCTYPE HTML>
 <!--
 	Arcana by HTML5 UP
 	html5up.net | @ajlkn
@@ -36,6 +57,7 @@
 							<li class="current"><a href="/catalogue"> View Book Catalogue</a></li>
 								<li><a href="/userprofile"> User's Profile</a></li>
 								<li><a href="/login"> Login</a></li>
+                                <li><a href="/register"> Register</a></li>
 						
 							</ul>
 						</nav>
@@ -49,10 +71,8 @@
                                 <th scope="col">Id</th>
                                 <th scope="col">Title</th>
                                 <th scope="col">Author</th>
-                                <th scope="col">Genre</th>
                                 <th scope="col">Availability</th>
-
-
+                                <th scope="col">Reserve</th>
                             </tr>
                             </thead>
                             <tbody class="table-group-divider" id="bookTable">
@@ -65,29 +85,28 @@
             .then(result => result.json())
             .then((books)=>{
                 books.forEach(book => {
-                    appendRestaurant(book);
+                    appendBook(book);
                 })
                 console.log(books);
             })
     }
-
-
-    function appendRestaurant(book)
+    function appendBook(book)
     {
 
         const newRow = document.createElement("tr");
         const idCol = document.createElement("th");
         const titleCol = document.createElement("td");
         const authorCol = document.createElement("td");
-        const genreCol = document.createElement("td");
         const availabilityCol = document.createElement("td");
         const reserveButton = document.createElement("button");
         const reserveButtonCol = document.createElement("td");
         const idInput = document.createElement("input");
+        const reserveForm = document.createElement("form");
 
+        reserveForm.action = "/reserve";
+        reserveForm.method = "post";
         reserveButton.className = "btn btn-warning";
         reserveButton.type = "submit";
-        reserveButton.setAttribute("book-id", book.id);
         idCol.scope = "row";
         idInput.type = "hidden";
 
@@ -96,65 +115,51 @@
         idCol.innerHTML = book.id;
         titleCol.innerHTML = book.title;
         authorCol.innerHTML = book.author;
-        genreCol.innerHTML = book.genre;
-        availabilityCol.innerHTML = book.availability;
+        if (book.availability) {
+            availabilityCol.innerHTML = "Yes";
+            if(<?php echo json_encode($isUserLoggedIn); ?>) {
+                reserveButton.disabled = false;
+            } else {
+                reserveButton.disabled = true;
+                reserveButton.className = "btn btn-secondary";
+            }
+        } else {
+            availabilityCol.innerHTML = "Unavailable until " + book.returnDate;
+            reserveButton.disabled = true;
+            reserveButton.className = "btn btn-secondary";
+        }
         reserveButton.innerHTML = "Reserve";
 
-
-        reserveButton.addEventListener('click', function ()
-        {
-            reserveBook(book.id);
-            table.removeChild(newRow);
-        })
+        reserveForm.appendChild(idInput);
+        reserveButton.appendChild(reserveForm);
         reserveButtonCol.appendChild(reserveButton);
+
+        reserveButton.addEventListener("click", function() {
+            if (confirm("Are you sure you want to reserve this book?")) {
+                // If the user confirms, submit the form
+                reserveForm.submit();
+            }
+        });
 
         newRow.appendChild(idCol);
         newRow.appendChild(titleCol);
         newRow.appendChild(authorCol);
-        newRow.appendChild(genreCol);
         newRow.appendChild(availabilityCol);
         newRow.appendChild(reserveButtonCol);
 
 
         const table = document.getElementById("bookTable");
         table.appendChild(newRow);
+
+        reserveForm.style.display = "none";
+        document.body.appendChild(reserveForm);
+
     }
     loadBooks();
 
-  function reserveBook(e) {
-    let bookId = e.target.getAttribute("book-id");
-    if (!isset($_SESSION['user'])) {
-      alert("You must be logged in to reserve a book");
-      return;
-    }
-    // Make a POST request to the server to reserve the book
-    fetch("http://localhost/api/books/reserve", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        bookId: bookId,
-        user: user
-      })
-    })
-	  .then(response => {
-		if(!response.ok) {
-		  throw new Error(response.statusText);
-		}
-		return response.json();
-	  })
-	  .then(data => {
-		alert("Book reserved successfully");
-	  })
-	  .catch(error => {
-		console.log(error);
-	  });
-	}
-
-    loadBooks();
   </script>
 
+    </tbody>
   </body>
 
 			

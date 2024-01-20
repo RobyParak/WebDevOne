@@ -1,9 +1,3 @@
-<?php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-$_SESSION['user'] = null;
-?>
 
 <!DOCTYPE HTML>
 <!--
@@ -38,6 +32,7 @@ $_SESSION['user'] = null;
 								<li><a href="catalogue"> View Book Catalogue</a></li>
 								<li><a href="userprofile"> User's Profile</a></li>
 								<li><a href="login"> Login</a></li>
+                                <li><a href="register"> Register</a></li>
 						
 							</ul>
 						</nav>

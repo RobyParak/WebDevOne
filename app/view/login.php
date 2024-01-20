@@ -1,17 +1,4 @@
 <?php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-$_SESSION['user'] = null;
-if (isset($_POST['username']) && isset($_POST['password'])) {
-	$user_name = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_EMAIL);
-	$password = htmlspecialchars($_POST['password']);
-
-    //ask Mark why this won't work until I include the "new" controller
-    $controller = new loginController();
-    $controller->validateLogin($user_name, $password);
-	
-}
 ?>
 <!-- login page -->
 
@@ -37,38 +24,39 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     </head>
 
 	<body class="is-preload">
-		<div id="page-wrapper">
+		<h id="page-wrapper">
 
 			<!-- Header -->
-				<div id="header">
-
-					<!-- Logo -->
-						<h1><a href="index.html" id="logo">The Useless Library</a></h1>
+            <header id="header">
+                <!-- Logo -->
+                <h1><a href="/about" id="logo">The Useless Library</a></h1>
 
 					<!-- Nav -->
 						<nav id="nav">
 							<ul>
-							<li><a href="about">Home</a></li>
+							<li><a href="/about">Home</a></li>
 								
-							  <li><a href="catalogue"> View Book Catalogue</a></li>
-								<li><a href="userprofile"> User's Profile</a></li>
-								<li class="current"><a href="login"> Login</a></li>
+							  <li><a href="/catalogue"> View Book Catalogue</a></li>
+								<li><a href="/userprofile"> User's Profile</a></li>
+								<li class="current"><a href="/login"> Login</a></li>
+                                <li><a href="/register"> Register</a></li>
 						
 							</ul>
 						</nav>
 
-				</div>
+            </header>
 
         
 <body>
-<div class="login-container">
-<form method="post">
+<div class="login-container" id="centered-form">
+<form method="post" action="/login" >
 
     <h2>Login</h2>
     <label for="username">Email Address:</label>
-    <input type="text" id="username" name="username">
+    <input type="text" id="username" name="username" required>
     <label for="password">Password:</label>
-    <input type="password" id="password" name="password">
+    <input type="password" id="password" name="password" required>
+    <br>
     <input type="submit" value="Submit">
   </form>
 </div>
